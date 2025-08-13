@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Audio Video Recorder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-video"></i>
+                <h1>Browser Recorder Pro</h1>
+            </div>
+            <div class="header-controls">
+                <button id="settingsBtn" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="recorder-container">
+                <div class="video-preview">
+                    <video id="videoPreview" autoplay muted></video>
+                    <div id="recordingOverlay" class="recording-overlay hidden">
+                        <div class="recording-indicator">
+                            <div class="pulse"></div>
+                            <span>REC</span>
+                        </div>
+                        <div class="recording-time" id="recordingTime">00:00</div>
+                    </div>
+                    <div id="placeholder" class="video-placeholder">
+                        <i class="fas fa-video"></i>
+                        <p>Click "Start Recording" to begin</p>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <div class="recording-controls">
+                        <button id="startBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-play"></i>
+                            Start Recording
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger btn-large hidden">
+                            <i class="fas fa-stop"></i>
+                            Stop Recording
+                        </button>
+                        <button id="pauseBtn" class="btn btn-warning btn-large hidden">
+                            <i class="fas fa-pause"></i>
+                            Pause
+                        </button>
+                        <button id="resumeBtn" class="btn btn-success btn-large hidden">
+                            <i class="fas fa-play"></i>
+                            Resume
+                        </button>
+                    </div>
+
+                    <div class="recording-options">
+                        <div class="option-group">
+                            <label>Recording Type:</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="recordingType" value="video" checked>
+                                    <span>Video + Audio</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="recordingType" value="audio">
+                                    <span>Audio Only</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="recordingType" value="screen">
+                                    <span>Screen Capture</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Quality:</label>
+                            <select id="qualitySelect" class="select-input">
+                                <option value="high">High Quality (1080p)</option>
+                                <option value="medium" selected>Medium Quality (720p)</option>
+                                <option value="low">Low Quality (480p)</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Audio Source:</label>
+                            <select id="audioSourceSelect" class="select-input">
+                                <option value="default">Default Microphone</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Video Source:</label>
+                            <select id="videoSourceSelect" class="select-input">
+                                <option value="default">Default Camera</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recordings-section">
+                <h3>Recordings</h3>
+                <div id="recordingsList" class="recordings-list">
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No recordings yet</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button id="closeSettings" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label>Default Recording Format:</label>
+                    <select id="defaultFormat" class="select-input">
+                        <option value="webm">WebM</option>
+                        <option value="mp4">MP4</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Auto-save recordings:</label>
+                    <input type="checkbox" id="autoSave" checked>
+                </div>
+                <div class="setting-group">
+                    <label>Show recording timer:</label>
+                    <input type="checkbox" id="showTimer" checked>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div id="downloadModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Download Recording</h3>
+                <button id="closeDownload" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="recording-info">
+                    <p>Your recording is ready for download!</p>
+                    <div class="recording-details">
+                        <span>Duration: <span id="recordingDuration">00:00</span></span>
+                        <span>Size: <span id="recordingSize">0 MB</span></span>
+                    </div>
+                </div>
+                <div class="download-options">
+                    <button id="downloadBtn" class="btn btn-primary btn-large">
+                        <i class="fas fa-download"></i>
+                        Download Recording
+                    </button>
+                    <button id="shareBtn" class="btn btn-secondary">
+                        <i class="fas fa-share"></i>
+                        Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

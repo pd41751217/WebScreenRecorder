@@ -1,0 +1,39 @@
+{
+  "name": "browser-audio-video-recorder",
+  "version": "1.0.0",
+  "description": "A modern browser-based audio and video recorder similar to Panopto Express",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 8000",
+    "dev": "npx serve . -p 8000",
+    "build": "echo 'No build step required - static files only'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "recorder",
+    "video",
+    "audio",
+    "screen-capture",
+    "webrtc",
+    "mediarecorder",
+    "browser",
+    "panopto",
+    "web-apis"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/browser-audio-video-recorder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/browser-audio-video-recorder/issues"
+  },
+  "homepage": "https://github.com/yourusername/browser-audio-video-recorder#readme"
+}
