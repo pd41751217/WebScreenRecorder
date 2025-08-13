@@ -1,63 +1,55 @@
 class BrowserRecorder {
     constructor() {
         this.mediaRecorder = null;
+        this.mediaStream = null;
         this.recordedChunks = [];
-        this.stream = null;
         this.isRecording = false;
         this.isPaused = false;
         this.recordingStartTime = 0;
-        this.pausedTime = 0;
-        this.timerInterval = null;
-        this.recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
-        
-        // Scene Transitions
-        this.transitionType = 'none';
-        this.transitionDuration = 500;
-        this.isTransitioning = false;
-        
-        // Live Filters & Effects
-        this.filterType = 'none';
-        this.filterIntensity = 50;
-        this.isFilterPreviewActive = false;
+        this.recordingTimer = null;
+        this.currentRecording = null;
+        this.recordings = [];
         
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
-        this.displayRecordings();
-        this.enumerateDevices();
+        this.populateDeviceOptions();
     }
 
     initializeElements() {
-        // Existing elements
-        this.startBtn = document.getElementById('startBtn');
-        this.stopBtn = document.getElementById('stopBtn');
-        this.pauseBtn = document.getElementById('pauseBtn');
-        this.resumeBtn = document.getElementById('resumeBtn');
+        // Video elements
         this.videoPreview = document.getElementById('videoPreview');
         this.placeholder = document.getElementById('placeholder');
         this.recordingOverlay = document.getElementById('recordingOverlay');
         this.recordingTime = document.getElementById('recordingTime');
-        this.recordingsList = document.getElementById('recordingsList');
-        this.settingsBtn = document.getElementById('settingsBtn');
+
+        // Control buttons
+        this.startBtn = document.getElementById('startBtn');
+        this.stopBtn = document.getElementById('stopBtn');
+        this.pauseBtn = document.getElementById('pauseBtn');
+        this.resumeBtn = document.getElementById('resumeBtn');
+
+        // Recording options
+        this.recordingTypeInputs = document.querySelectorAll('input[name="recordingType"]');
+        this.qualitySelect = document.getElementById('qualitySelect');
+        this.audioSourceSelect = document.getElementById('audioSourceSelect');
+        this.videoSourceSelect = document.getElementById('videoSourceSelect');
+
+        // Modals
         this.settingsModal = document.getElementById('settingsModal');
-        this.closeSettings = document.getElementById('closeSettings');
         this.downloadModal = document.getElementById('downloadModal');
+        this.settingsBtn = document.getElementById('settingsBtn');
+        this.closeSettings = document.getElementById('closeSettings');
         this.closeDownload = document.getElementById('closeDownload');
+
+        // Download elements
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
         this.recordingDuration = document.getElementById('recordingDuration');
         this.recordingSize = document.getElementById('recordingSize');
-        
-        // Scene Transitions
-        this.transitionTypeSelect = document.getElementById('transitionType');
-        this.transitionDurationSlider = document.getElementById('transitionDuration');
-        this.durationValue = document.getElementById('durationValue');
-        
-        // Live Filters & Effects
-        this.filterTypeSelect = document.getElementById('filterType');
-        this.filterIntensitySlider = document.getElementById('filterIntensity');
-        this.intensityValue = document.getElementById('intensityValue');
-        this.previewFilterBtn = document.getElementById('previewFilterBtn');
+
+        // Recordings list
+        this.recordingsList = document.getElementById('recordingsList');
     }
 
     bindEvents() {
@@ -81,19 +73,6 @@ class BrowserRecorder {
             if (e.target === this.settingsModal) this.hideSettings();
             if (e.target === this.downloadModal) this.hideDownloadModal();
         });
-
-        // Scene Transitions
-        this.transitionTypeSelect.addEventListener('change', () => this.updateTransitionType());
-        this.transitionDurationSlider.addEventListener('input', () => this.updateTransitionDuration());
-        this.durationValue.addEventListener('input', () => this.updateDurationValue());
-
-        // Demo transition button
-        document.getElementById('demoTransitionBtn').addEventListener('click', () => this.demoTransition());
-
-        // Live Filters & Effects
-        this.filterTypeSelect.addEventListener('change', () => this.updateFilterType());
-        this.filterIntensitySlider.addEventListener('input', () => this.updateFilterIntensity());
-        this.previewFilterBtn.addEventListener('click', () => this.previewFilter());
 
         // Device selection changes
         this.audioSourceSelect.addEventListener('change', () => this.updateStream());
@@ -177,48 +156,32 @@ class BrowserRecorder {
 
     async startRecording() {
         try {
-            const recordingType = document.querySelector('input[name="recordingType"]:checked').value;
-            const quality = document.getElementById('qualitySelect').value;
+            this.startBtn.disabled = true;
+            this.startBtn.classList.add('loading');
+
+            const constraints = await this.getMediaConstraints();
             
-            let stream;
-            
-            if (recordingType === 'screen') {
-                stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: {
-                        cursor: 'always',
-                        displaySurface: 'monitor'
-                    },
-                    audio: true
-                });
-            } else if (recordingType === 'audio') {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true
+            if (this.getRecordingType() === 'screen') {
+                this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: constraints.video,
+                    audio: constraints.audio
                 });
             } else {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        width: { ideal: quality === 'high' ? 1920 : quality === 'medium' ? 1280 : 854 },
-                        height: { ideal: quality === 'high' ? 1080 : quality === 'medium' ? 720 : 480 }
-                    },
-                    audio: true
-                });
+                this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             }
 
-            this.stream = stream;
-            
-            if (recordingType !== 'audio') {
-                this.videoPreview.srcObject = stream;
-                this.placeholder.classList.add('hidden');
-            }
+            this.videoPreview.srcObject = this.mediaStream;
+            this.placeholder.classList.add('hidden');
 
-            const options = {
-                mimeType: 'video/webm;codecs=vp9,opus',
-                videoBitsPerSecond: quality === 'high' ? 8000000 : quality === 'medium' ? 4000000 : 2000000
-            };
+            // Set up MediaRecorder
+            const mimeType = this.getSupportedMimeType();
+            this.mediaRecorder = new MediaRecorder(this.mediaStream, {
+                mimeType: mimeType,
+                videoBitsPerSecond: 2500000 // 2.5 Mbps
+            });
 
-            this.mediaRecorder = new MediaRecorder(stream, options);
             this.recordedChunks = [];
-
+            
             this.mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     this.recordedChunks.push(event.data);
@@ -229,38 +192,45 @@ class BrowserRecorder {
                 this.handleRecordingComplete();
             };
 
-            // Apply scene transition before starting
-            await this.applySceneTransition('start');
-            
-            this.mediaRecorder.start();
+            this.mediaRecorder.onpause = () => {
+                this.isPaused = true;
+                this.updateControlButtons();
+            };
+
+            this.mediaRecorder.onresume = () => {
+                this.isPaused = false;
+                this.updateControlButtons();
+            };
+
+            // Start recording
+            this.mediaRecorder.start(1000); // Collect data every second
             this.isRecording = true;
             this.recordingStartTime = Date.now();
-            this.startTimer();
-            this.updateUI();
-            
+            this.startRecordingTimer();
+            this.updateControlButtons();
+            this.showRecordingOverlay();
+
         } catch (error) {
             console.error('Error starting recording:', error);
-            alert('Failed to start recording. Please check your permissions.');
+            this.showError('Failed to start recording. Please check your permissions and try again.');
+            this.startBtn.disabled = false;
+            this.startBtn.classList.remove('loading');
         }
     }
 
-    async stopRecording() {
+    stopRecording() {
         if (this.mediaRecorder && this.isRecording) {
-            // Apply scene transition before stopping
-            await this.applySceneTransition('stop');
-            
             this.mediaRecorder.stop();
             this.isRecording = false;
-            this.stopTimer();
-            this.updateUI();
+            this.isPaused = false;
+            this.stopRecordingTimer();
+            this.hideRecordingOverlay();
+            this.updateControlButtons();
             
-            if (this.stream) {
-                this.stream.getTracks().forEach(track => track.stop());
-                this.stream = null;
+            // Stop all tracks
+            if (this.mediaStream) {
+                this.mediaStream.getTracks().forEach(track => track.stop());
             }
-            
-            this.videoPreview.srcObject = null;
-            this.placeholder.classList.remove('hidden');
         }
     }
 
@@ -566,224 +536,6 @@ class BrowserRecorder {
             this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.videoPreview.srcObject = this.mediaStream;
         }
-    }
-
-    // Scene Transitions Methods
-    updateTransitionType() {
-        this.transitionType = this.transitionTypeSelect.value;
-        this.applyTransitionClass();
-    }
-
-    updateTransitionDuration() {
-        this.transitionDuration = parseInt(this.transitionDurationSlider.value);
-        this.durationValue.textContent = `${this.transitionDuration}ms`;
-        this.updateTransitionCSS();
-    }
-
-    updateDurationValue() {
-        this.transitionDuration = parseInt(this.durationValue.textContent);
-        this.transitionDurationSlider.value = this.transitionDuration;
-        this.updateTransitionCSS();
-    }
-
-    applyTransitionClass() {
-        const videoPreview = document.querySelector('.video-preview');
-        videoPreview.classList.remove('transition-fade', 'transition-slide', 'transition-zoom', 'transition-wipe', 'transition-dissolve');
-        
-        if (this.transitionType !== 'none') {
-            videoPreview.classList.add(`transition-${this.transitionType}`);
-        }
-    }
-
-    updateTransitionCSS() {
-        const videoPreview = document.querySelector('.video-preview');
-        if (this.transitionType !== 'none') {
-            videoPreview.style.transitionDuration = `${this.transitionDuration}ms`;
-        }
-    }
-
-    async applySceneTransition(action) {
-        if (this.transitionType === 'none' || this.isTransitioning) return;
-
-        const videoPreview = document.querySelector('.video-preview');
-        this.isTransitioning = true;
-
-        return new Promise((resolve) => {
-            if (this.transitionType === 'wipe') {
-                videoPreview.classList.add('active');
-                setTimeout(() => {
-                    videoPreview.classList.remove('active');
-                    this.isTransitioning = false;
-                    resolve();
-                }, this.transitionDuration);
-            } else {
-                videoPreview.classList.add('transitioning');
-                setTimeout(() => {
-                    videoPreview.classList.remove('transitioning');
-                    this.isTransitioning = false;
-                    resolve();
-                }, this.transitionDuration);
-            }
-        });
-    }
-
-    async demoTransition() {
-        if (this.isTransitioning) return;
-
-        const videoPreview = document.querySelector('.video-preview');
-        this.isTransitioning = true;
-
-        // Fade out
-        videoPreview.classList.add('transition-fade');
-        await new Promise(resolve => setTimeout(resolve, this.transitionDuration));
-        videoPreview.classList.remove('transition-fade');
-
-        // Slide in
-        videoPreview.classList.add('transition-slide');
-        await new Promise(resolve => setTimeout(resolve, this.transitionDuration));
-        videoPreview.classList.remove('transition-slide');
-
-        // Zoom in
-        videoPreview.classList.add('transition-zoom');
-        await new Promise(resolve => setTimeout(resolve, this.transitionDuration));
-        videoPreview.classList.remove('transition-zoom');
-
-        // Wipe out
-        videoPreview.classList.add('transition-wipe');
-        await new Promise(resolve => setTimeout(resolve, this.transitionDuration));
-        videoPreview.classList.remove('transition-wipe');
-
-        // Dissolve
-        videoPreview.classList.add('transition-dissolve');
-        await new Promise(resolve => setTimeout(resolve, this.transitionDuration));
-        videoPreview.classList.remove('transition-dissolve');
-
-        this.isTransitioning = false;
-    }
-
-    // Live Filters & Effects Methods
-    updateFilterType() {
-        this.filterType = this.filterTypeSelect.value;
-        this.applyFilter();
-    }
-
-    updateFilterIntensity() {
-        this.filterIntensity = parseInt(this.filterIntensitySlider.value);
-        this.intensityValue.textContent = `${this.filterIntensity}%`;
-        this.applyFilter();
-    }
-
-    applyFilter() {
-        const videoPreview = document.querySelector('.video-preview');
-        
-        // Remove all filter classes
-        videoPreview.classList.remove(
-            'filter-sepia', 'filter-grayscale', 'filter-blur', 'filter-brightness',
-            'filter-contrast', 'filter-saturation', 'filter-hue', 'filter-invert',
-            'filter-vintage', 'filter-cool', 'filter-warm'
-        );
-
-        if (this.filterType !== 'none') {
-            videoPreview.classList.add(`filter-${this.filterType}`);
-            videoPreview.setAttribute('data-filter-intensity', this.filterIntensity);
-            this.updateFilterCSS();
-        } else {
-            videoPreview.removeAttribute('data-filter-intensity');
-        }
-    }
-
-    updateFilterCSS() {
-        const videoPreview = document.querySelector('.video-preview');
-        const intensity = this.filterIntensity / 100;
-        
-        // Set CSS custom properties for dynamic filter intensity
-        const filterEffects = this.getFilterEffects(intensity);
-        videoPreview.style.setProperty('--filter-effect-10', filterEffects[10]);
-        videoPreview.style.setProperty('--filter-effect-20', filterEffects[20]);
-        videoPreview.style.setProperty('--filter-effect-30', filterEffects[30]);
-        videoPreview.style.setProperty('--filter-effect-40', filterEffects[40]);
-        videoPreview.style.setProperty('--filter-effect-50', filterEffects[50]);
-        videoPreview.style.setProperty('--filter-effect-60', filterEffects[60]);
-        videoPreview.style.setProperty('--filter-effect-70', filterEffects[70]);
-        videoPreview.style.setProperty('--filter-effect-80', filterEffects[80]);
-        videoPreview.style.setProperty('--filter-effect-90', filterEffects[90]);
-        videoPreview.style.setProperty('--filter-effect-100', filterEffects[100]);
-    }
-
-    getFilterEffects(intensity) {
-        const effects = {};
-        
-        for (let i = 10; i <= 100; i += 10) {
-            const currentIntensity = (i / 100) * intensity;
-            
-            switch (this.filterType) {
-                case 'sepia':
-                    effects[i] = `sepia(${currentIntensity})`;
-                    break;
-                case 'grayscale':
-                    effects[i] = `grayscale(${currentIntensity})`;
-                    break;
-                case 'blur':
-                    effects[i] = `blur(${currentIntensity * 4}px)`;
-                    break;
-                case 'brightness':
-                    effects[i] = `brightness(${1 + currentIntensity * 0.4})`;
-                    break;
-                case 'contrast':
-                    effects[i] = `contrast(${1 + currentIntensity * 0.6})`;
-                    break;
-                case 'saturation':
-                    effects[i] = `saturate(${1 + currentIntensity})`;
-                    break;
-                case 'hue':
-                    effects[i] = `hue-rotate(${currentIntensity * 180}deg)`;
-                    break;
-                case 'invert':
-                    effects[i] = `invert(${currentIntensity})`;
-                    break;
-                case 'vintage':
-                    effects[i] = `sepia(${currentIntensity * 0.8}) contrast(${1 + currentIntensity * 0.4}) brightness(${1 - currentIntensity * 0.2}) saturate(${1 - currentIntensity * 0.4})`;
-                    break;
-                case 'cool':
-                    effects[i] = `hue-rotate(${currentIntensity * 180}deg) saturate(${1 + currentIntensity * 0.4}) brightness(${1 - currentIntensity * 0.1})`;
-                    break;
-                case 'warm':
-                    effects[i] = `sepia(${currentIntensity * 0.6}) saturate(${1 + currentIntensity * 0.8}) brightness(${1 + currentIntensity * 0.2}) hue-rotate(${-currentIntensity * 20}deg)`;
-                    break;
-                default:
-                    effects[i] = 'none';
-            }
-        }
-        
-        return effects;
-    }
-
-    async previewFilter() {
-        if (this.isFilterPreviewActive) return;
-        
-        this.isFilterPreviewActive = true;
-        this.previewFilterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Previewing...';
-        
-        // Cycle through different filters for preview
-        const filters = ['sepia', 'grayscale', 'vintage', 'cool', 'warm', 'brightness', 'contrast'];
-        const originalFilter = this.filterType;
-        const originalIntensity = this.filterIntensity;
-        
-        for (let i = 0; i < filters.length; i++) {
-            this.filterType = filters[i];
-            this.filterIntensity = 70;
-            this.applyFilter();
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-        }
-        
-        // Restore original settings
-        this.filterType = originalFilter;
-        this.filterIntensity = originalIntensity;
-        this.applyFilter();
-        
-        this.isFilterPreviewActive = false;
-        this.previewFilterBtn.innerHTML = '<i class="fas fa-eye"></i> Preview Filter';
     }
 }
 

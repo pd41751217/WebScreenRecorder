@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Romantic Recorder - Browser Audio Video Recorder</title>
+    <title>Dream Recorder - Browser Audio Video Recorder</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -11,11 +11,17 @@
     <div class="container">
         <header class="header">
             <div class="logo">
-                <svg class="camera-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/>
-                    <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                <svg class="camera-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="url(#cameraGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="url(#cameraGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="cameraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#B22234;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3C3B6E;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
                 </svg>
-                <h1>Romantic Recorder</h1>
+                <h1>Dream Recorder</h1>
             </div>
             <div class="header-controls">
                 <button id="settingsBtn" class="btn btn-secondary">
@@ -38,13 +44,13 @@
                     <div id="placeholder" class="video-placeholder">
                         <div class="placeholder-content">
                             <div class="icon-container">
-                                <svg class="camera-icon-large" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/>
-                                    <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                                <svg class="camera-icon-large" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <div class="icon-glow"></div>
                             </div>
-                            <p>Click "Start Recording" to begin your romantic journey</p>
+                            <p>Click "Start Recording" to capture your dream</p>
                             <div class="particles">
                                 <div class="particle"></div>
                                 <div class="particle"></div>
@@ -57,28 +63,24 @@
                 </div>
 
                 <div class="controls-panel">
-                                         <div class="recording-controls">
-                         <button id="startBtn" class="btn btn-primary btn-large">
-                             <i class="fas fa-play"></i>
-                             Start Recording
-                         </button>
-                         <button id="stopBtn" class="btn btn-danger btn-large hidden">
-                             <i class="fas fa-stop"></i>
-                             Stop Recording
-                         </button>
-                         <button id="pauseBtn" class="btn btn-warning btn-large hidden">
-                             <i class="fas fa-pause"></i>
-                             Pause
-                         </button>
-                         <button id="resumeBtn" class="btn btn-success btn-large hidden">
-                             <i class="fas fa-play"></i>
-                             Resume
-                         </button>
-                         <button id="demoTransitionBtn" class="btn btn-secondary btn-large">
-                             <i class="fas fa-magic"></i>
-                             Demo Transition
-                         </button>
-                     </div>
+                    <div class="recording-controls">
+                        <button id="startBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-play"></i>
+                            Start Recording
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger btn-large hidden">
+                            <i class="fas fa-stop"></i>
+                            Stop Recording
+                        </button>
+                        <button id="pauseBtn" class="btn btn-warning btn-large hidden">
+                            <i class="fas fa-pause"></i>
+                            Pause
+                        </button>
+                        <button id="resumeBtn" class="btn btn-success btn-large hidden">
+                            <i class="fas fa-play"></i>
+                            Resume
+                        </button>
+                    </div>
 
                     <div class="recording-options">
                         <div class="option-group">
@@ -96,54 +98,6 @@
                                     <input type="radio" name="recordingType" value="screen">
                                     <span>Screen Capture</span>
                                 </label>
-                            </div>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Scene Transitions:</label>
-                            <div class="transition-controls">
-                                <select id="transitionType" class="select-input">
-                                    <option value="none">No Transition</option>
-                                    <option value="fade">Fade</option>
-                                    <option value="slide">Slide</option>
-                                    <option value="zoom">Zoom</option>
-                                    <option value="wipe">Wipe</option>
-                                    <option value="dissolve">Dissolve</option>
-                                </select>
-                                <div class="transition-duration">
-                                    <label>Duration: <span id="durationValue">500ms</span></label>
-                                    <input type="range" id="transitionDuration" min="100" max="2000" value="500" step="100">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Live Filters & Effects:</label>
-                            <div class="filters-controls">
-                                <select id="filterType" class="select-input">
-                                    <option value="none">No Filter</option>
-                                    <option value="sepia">Sepia</option>
-                                    <option value="grayscale">Grayscale</option>
-                                    <option value="blur">Blur</option>
-                                    <option value="brightness">Brightness</option>
-                                    <option value="contrast">Contrast</option>
-                                    <option value="saturation">Saturation</option>
-                                    <option value="hue">Hue Rotate</option>
-                                    <option value="invert">Invert</option>
-                                    <option value="vintage">Vintage</option>
-                                    <option value="cool">Cool Tone</option>
-                                    <option value="warm">Warm Tone</option>
-                                </select>
-                                <div class="filter-intensity">
-                                    <label>Intensity: <span id="intensityValue">50%</span></label>
-                                    <input type="range" id="filterIntensity" min="0" max="100" value="50" step="5">
-                                </div>
-                                <div class="filter-preview">
-                                    <button id="previewFilterBtn" class="btn btn-secondary btn-small">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Filter
-                                    </button>
-                                </div>
                             </div>
                         </div>
 
