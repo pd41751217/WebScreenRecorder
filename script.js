@@ -11,6 +11,14 @@ class BrowserRecorder {
         this.recordings = [];
         this.currentTransition = 'none';
         this.transitionDurationMs = 500;
+        this.videoEffects = {
+            brightness: 100,
+            contrast: 100,
+            saturation: 100,
+            blur: 0,
+            hue: 0,
+            sepia: 0
+        };
         
         this.initializeElements();
         this.bindEvents();
@@ -93,6 +101,23 @@ class BrowserRecorder {
 
         this.transitionSelect.addEventListener('change', () => this.updateTransition());
         this.transitionDuration.addEventListener('input', () => this.updateTransitionDuration());
+
+        // Video effects controls
+        this.brightnessEffect = document.getElementById('brightnessEffect');
+        this.contrastEffect = document.getElementById('contrastEffect');
+        this.saturationEffect = document.getElementById('saturationEffect');
+        this.blurEffect = document.getElementById('blurEffect');
+        this.hueEffect = document.getElementById('hueEffect');
+        this.sepiaEffect = document.getElementById('sepiaEffect');
+        this.resetEffectsBtn = document.getElementById('resetEffectsBtn');
+
+        this.brightnessEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.contrastEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.saturationEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.blurEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.hueEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.sepiaEffect.addEventListener('input', () => this.updateVideoEffects());
+        this.resetEffectsBtn.addEventListener('click', () => this.resetVideoEffects());
     }
 
     async populateDeviceOptions() {
@@ -501,6 +526,16 @@ class BrowserRecorder {
             this.transitionDurationMs = settings.transitionDuration;
             this.durationValue.textContent = `${settings.transitionDuration}ms`;
         }
+        if (settings.videoEffects) {
+            this.videoEffects = settings.videoEffects;
+            this.brightnessEffect.value = this.videoEffects.brightness;
+            this.contrastEffect.value = this.videoEffects.contrast;
+            this.saturationEffect.value = this.videoEffects.saturation;
+            this.blurEffect.value = this.videoEffects.blur;
+            this.hueEffect.value = this.videoEffects.hue;
+            this.sepiaEffect.value = this.videoEffects.sepia;
+            this.updateVideoEffects();
+        }
 
         // Load recordings
         const savedRecordings = JSON.parse(localStorage.getItem('recordings') || '[]');
@@ -514,7 +549,8 @@ class BrowserRecorder {
             autoSave: document.getElementById('autoSave').checked,
             showTimer: document.getElementById('showTimer').checked,
             transition: this.currentTransition,
-            transitionDuration: this.transitionDurationMs
+            transitionDuration: this.transitionDurationMs,
+            videoEffects: this.videoEffects
         };
         localStorage.setItem('recorderSettings', JSON.stringify(settings));
     }
@@ -613,6 +649,73 @@ class BrowserRecorder {
                 videoPreview.classList.remove('active');
             }
         }, this.transitionDurationMs);
+    }
+
+    updateVideoEffects() {
+        // Update effect values
+        this.videoEffects.brightness = parseInt(this.brightnessEffect.value);
+        this.videoEffects.contrast = parseInt(this.contrastEffect.value);
+        this.videoEffects.saturation = parseInt(this.saturationEffect.value);
+        this.videoEffects.blur = parseFloat(this.blurEffect.value);
+        this.videoEffects.hue = parseInt(this.hueEffect.value);
+        this.videoEffects.sepia = parseInt(this.sepiaEffect.value);
+
+        // Update display values
+        this.brightnessEffect.nextElementSibling.textContent = `${this.videoEffects.brightness}%`;
+        this.contrastEffect.nextElementSibling.textContent = `${this.videoEffects.contrast}%`;
+        this.saturationEffect.nextElementSibling.textContent = `${this.videoEffects.saturation}%`;
+        this.blurEffect.nextElementSibling.textContent = `${this.videoEffects.blur}px`;
+        this.hueEffect.nextElementSibling.textContent = `${this.videoEffects.hue}°`;
+        this.sepiaEffect.nextElementSibling.textContent = `${this.videoEffects.sepia}%`;
+
+        // Apply effects to video preview
+        this.applyVideoEffects();
+        
+        // Save settings
+        this.saveSettings();
+    }
+
+    applyVideoEffects() {
+        const videoPreview = this.videoPreview;
+        const effects = this.videoEffects;
+        
+        // Build CSS filter string
+        const filters = [
+            `brightness(${effects.brightness}%)`,
+            `contrast(${effects.contrast}%)`,
+            `saturate(${effects.saturation}%)`,
+            `blur(${effects.blur}px)`,
+            `hue-rotate(${effects.hue}deg)`,
+            `sepia(${effects.sepia}%)`
+        ].join(' ');
+        
+        videoPreview.style.filter = filters;
+    }
+
+    resetVideoEffects() {
+        // Reset all effect values to defaults
+        this.brightnessEffect.value = 100;
+        this.contrastEffect.value = 100;
+        this.saturationEffect.value = 100;
+        this.blurEffect.value = 0;
+        this.hueEffect.value = 0;
+        this.sepiaEffect.value = 0;
+
+        // Reset video effects object
+        this.videoEffects = {
+            brightness: 100,
+            contrast: 100,
+            saturation: 100,
+            blur: 0,
+            hue: 0,
+            sepia: 0
+        };
+
+        // Update display values
+        this.updateVideoEffects();
+        
+        // Remove all filters from video
+        this.videoPreview.style.filter = 'none';
     }
 }
 
