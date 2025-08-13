@@ -9,6 +9,8 @@ class BrowserRecorder {
         this.recordingTimer = null;
         this.currentRecording = null;
         this.recordings = [];
+        this.currentTransition = 'none';
+        this.transitionDurationMs = 500;
         
         this.initializeElements();
         this.bindEvents();
@@ -48,6 +50,9 @@ class BrowserRecorder {
         this.recordingDuration = document.getElementById('recordingDuration');
         this.recordingSize = document.getElementById('recordingSize');
 
+        // Transition button
+        this.transitionBtn = document.getElementById('transitionBtn');
+
         // Recordings list
         this.recordingsList = document.getElementById('recordingsList');
     }
@@ -68,6 +73,9 @@ class BrowserRecorder {
         this.downloadBtn.addEventListener('click', () => this.downloadRecording());
         this.shareBtn.addEventListener('click', () => this.shareRecording());
 
+        // Transition button
+        this.transitionBtn.addEventListener('click', () => this.triggerTransition());
+
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === this.settingsModal) this.hideSettings();
@@ -77,6 +85,14 @@ class BrowserRecorder {
         // Device selection changes
         this.audioSourceSelect.addEventListener('change', () => this.updateStream());
         this.videoSourceSelect.addEventListener('change', () => this.updateStream());
+
+        // Transition controls
+        this.transitionSelect = document.getElementById('transitionSelect');
+        this.transitionDuration = document.getElementById('transitionDuration');
+        this.durationValue = document.getElementById('durationValue');
+
+        this.transitionSelect.addEventListener('change', () => this.updateTransition());
+        this.transitionDuration.addEventListener('input', () => this.updateTransitionDuration());
     }
 
     async populateDeviceOptions() {
@@ -475,6 +491,16 @@ class BrowserRecorder {
         if (settings.showTimer !== undefined) {
             document.getElementById('showTimer').checked = settings.showTimer;
         }
+        if (settings.transition) {
+            this.transitionSelect.value = settings.transition;
+            this.currentTransition = settings.transition;
+            this.updateTransition();
+        }
+        if (settings.transitionDuration) {
+            this.transitionDuration.value = settings.transitionDuration;
+            this.transitionDurationMs = settings.transitionDuration;
+            this.durationValue.textContent = `${settings.transitionDuration}ms`;
+        }
 
         // Load recordings
         const savedRecordings = JSON.parse(localStorage.getItem('recordings') || '[]');
@@ -486,7 +512,9 @@ class BrowserRecorder {
         const settings = {
             defaultFormat: document.getElementById('defaultFormat').value,
             autoSave: document.getElementById('autoSave').checked,
-            showTimer: document.getElementById('showTimer').checked
+            showTimer: document.getElementById('showTimer').checked,
+            transition: this.currentTransition,
+            transitionDuration: this.transitionDurationMs
         };
         localStorage.setItem('recorderSettings', JSON.stringify(settings));
     }
@@ -536,6 +564,55 @@ class BrowserRecorder {
             this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.videoPreview.srcObject = this.mediaStream;
         }
+    }
+
+    updateTransition() {
+        const transition = this.transitionSelect.value;
+        this.currentTransition = transition;
+        
+        // Remove all transition classes
+        this.videoPreview.classList.remove('transition-fade', 'transition-slide', 'transition-zoom', 'transition-wipe', 'transition-dissolve');
+        
+        if (transition !== 'none') {
+            this.videoPreview.classList.add(`transition-${transition}`);
+        }
+        
+        this.saveSettings();
+    }
+
+    updateTransitionDuration() {
+        const duration = this.transitionDuration.value;
+        this.transitionDurationMs = parseInt(duration);
+        this.durationValue.textContent = `${duration}ms`;
+        
+        // Update CSS transition duration
+        if (this.currentTransition !== 'none') {
+            this.videoPreview.style.transitionDuration = `${duration}ms`;
+        }
+        
+        this.saveSettings();
+    }
+
+    triggerTransition() {
+        if (this.currentTransition === 'none') return;
+        
+        const videoPreview = this.videoPreview;
+        
+        // Add transitioning class
+        videoPreview.classList.add('transitioning');
+        
+        // For wipe transition, trigger the wipe effect
+        if (this.currentTransition === 'wipe') {
+            videoPreview.classList.add('active');
+        }
+        
+        // Remove transitioning class after duration
+        setTimeout(() => {
+            videoPreview.classList.remove('transitioning');
+            if (this.currentTransition === 'wipe') {
+                videoPreview.classList.remove('active');
+            }
+        }, this.transitionDurationMs);
     }
 }
 

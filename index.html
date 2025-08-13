@@ -80,6 +80,10 @@
                             <i class="fas fa-play"></i>
                             Resume
                         </button>
+                        <button id="transitionBtn" class="btn btn-secondary btn-large">
+                            <i class="fas fa-magic"></i>
+                            Test Transition
+                        </button>
                     </div>
 
                     <div class="recording-options">
@@ -122,6 +126,24 @@
                             <select id="videoSourceSelect" class="select-input">
                                 <option value="default">Default Camera</option>
                             </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Scene Transition:</label>
+                            <select id="transitionSelect" class="select-input">
+                                <option value="none">No Transition</option>
+                                <option value="fade">Fade</option>
+                                <option value="slide">Slide</option>
+                                <option value="zoom">Zoom</option>
+                                <option value="wipe">Wipe</option>
+                                <option value="dissolve">Dissolve</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Transition Duration:</label>
+                            <input type="range" id="transitionDuration" min="0" max="2000" value="500" step="100" class="range-input">
+                            <span id="durationValue">500ms</span>
                         </div>
                     </div>
                 </div>
