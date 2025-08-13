@@ -57,24 +57,28 @@
                 </div>
 
                 <div class="controls-panel">
-                    <div class="recording-controls">
-                        <button id="startBtn" class="btn btn-primary btn-large">
-                            <i class="fas fa-play"></i>
-                            Start Recording
-                        </button>
-                        <button id="stopBtn" class="btn btn-danger btn-large hidden">
-                            <i class="fas fa-stop"></i>
-                            Stop Recording
-                        </button>
-                        <button id="pauseBtn" class="btn btn-warning btn-large hidden">
-                            <i class="fas fa-pause"></i>
-                            Pause
-                        </button>
-                        <button id="resumeBtn" class="btn btn-success btn-large hidden">
-                            <i class="fas fa-play"></i>
-                            Resume
-                        </button>
-                    </div>
+                                         <div class="recording-controls">
+                         <button id="startBtn" class="btn btn-primary btn-large">
+                             <i class="fas fa-play"></i>
+                             Start Recording
+                         </button>
+                         <button id="stopBtn" class="btn btn-danger btn-large hidden">
+                             <i class="fas fa-stop"></i>
+                             Stop Recording
+                         </button>
+                         <button id="pauseBtn" class="btn btn-warning btn-large hidden">
+                             <i class="fas fa-pause"></i>
+                             Pause
+                         </button>
+                         <button id="resumeBtn" class="btn btn-success btn-large hidden">
+                             <i class="fas fa-play"></i>
+                             Resume
+                         </button>
+                         <button id="demoTransitionBtn" class="btn btn-secondary btn-large">
+                             <i class="fas fa-magic"></i>
+                             Demo Transition
+                         </button>
+                     </div>
 
                     <div class="recording-options">
                         <div class="option-group">
@@ -92,6 +96,54 @@
                                     <input type="radio" name="recordingType" value="screen">
                                     <span>Screen Capture</span>
                                 </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Scene Transitions:</label>
+                            <div class="transition-controls">
+                                <select id="transitionType" class="select-input">
+                                    <option value="none">No Transition</option>
+                                    <option value="fade">Fade</option>
+                                    <option value="slide">Slide</option>
+                                    <option value="zoom">Zoom</option>
+                                    <option value="wipe">Wipe</option>
+                                    <option value="dissolve">Dissolve</option>
+                                </select>
+                                <div class="transition-duration">
+                                    <label>Duration: <span id="durationValue">500ms</span></label>
+                                    <input type="range" id="transitionDuration" min="100" max="2000" value="500" step="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Live Filters & Effects:</label>
+                            <div class="filters-controls">
+                                <select id="filterType" class="select-input">
+                                    <option value="none">No Filter</option>
+                                    <option value="sepia">Sepia</option>
+                                    <option value="grayscale">Grayscale</option>
+                                    <option value="blur">Blur</option>
+                                    <option value="brightness">Brightness</option>
+                                    <option value="contrast">Contrast</option>
+                                    <option value="saturation">Saturation</option>
+                                    <option value="hue">Hue Rotate</option>
+                                    <option value="invert">Invert</option>
+                                    <option value="vintage">Vintage</option>
+                                    <option value="cool">Cool Tone</option>
+                                    <option value="warm">Warm Tone</option>
+                                </select>
+                                <div class="filter-intensity">
+                                    <label>Intensity: <span id="intensityValue">50%</span></label>
+                                    <input type="range" id="filterIntensity" min="0" max="100" value="50" step="5">
+                                </div>
+                                <div class="filter-preview">
+                                    <button id="previewFilterBtn" class="btn btn-secondary btn-small">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Filter
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
