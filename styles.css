@@ -127,6 +127,9 @@ body::before {
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
 }
 
 .recorder-container::before {
@@ -151,6 +154,64 @@ body::before {
     to { transform: rotate(360deg); }
 }
 
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Left Section */
+.left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Right Section */
+.right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+/* Controls Panel */
+.controls-panel {
+    width: 400px;
+    min-width: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Transition Control */
+.transition-control {
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.controls-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(178, 34, 52, 0.05), transparent);
+    pointer-events: none;
+}
+
 /* Video Preview */
 .video-preview {
     position: relative;
@@ -159,7 +220,6 @@ body::before {
     background: linear-gradient(45deg, #B22234, #FFFFFF, #3C3B6E);
     border-radius: 25px;
     overflow: hidden;
-    margin-bottom: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,6 +227,19 @@ body::before {
         0 20px 40px rgba(178, 34, 52, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     border: 2px solid rgba(178, 34, 52, 0.3);
+}
+
+/* Video Controls */
+.video-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 0;
 }
 
 #videoPreview {
@@ -377,14 +450,9 @@ body::before {
 }
 
 .recording-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     position: relative;
     overflow: hidden;
 }
@@ -402,9 +470,37 @@ body::before {
 
 .recording-controls {
     display: flex;
-    gap: 15px;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* Hide recording controls in controls panel since they're now in video overlay */
+.controls-panel .recording-controls {
+    display: none;
+}
+
+.main-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.secondary-controls {
+    display: flex;
+    gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+/* Video controls specific styling */
+.video-controls .main-controls {
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.video-controls .secondary-controls {
+    justify-content: center;
 }
 
 .recording-options {
@@ -416,33 +512,70 @@ body::before {
 .option-group {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.option-group.inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.option-group.inline label {
+    min-width: 120px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.option-group.inline .radio-group {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    flex: 1;
+}
+
+.option-group.inline .select-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.range-container {
+    display: flex;
+    align-items: center;
     gap: 10px;
+    flex: 1;
 }
 
 .option-group label {
     font-weight: 600;
     color: white;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    font-size: 0.9rem;
+    margin-bottom: 4px;
 }
 
 .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
-    padding: 12px 15px;
-    border-radius: 15px;
+    padding: 8px 12px;
+    border-radius: 12px;
     transition: all 0.3s ease;
     color: white;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
+    font-size: 0.85rem;
 }
 
 .radio-option:hover {
@@ -457,10 +590,10 @@ body::before {
 }
 
 .select-input {
-    padding: 12px 20px;
+    padding: 8px 12px;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 15px;
-    font-size: 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
     background: rgba(255, 255, 255, 0.1);
     color: white;
     backdrop-filter: blur(10px);
@@ -472,16 +605,87 @@ body::before {
     color: white;
 }
 
+/* Tabbed Interface Styling */
+.tabs-container {
+    width: 100%;
+}
+
+.tab-nav {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn i {
+    font-size: 1rem;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.tab-btn.active {
+    background: linear-gradient(45deg, #B22234, #3C3B6E);
+    color: white;
+    box-shadow: 0 4px 15px rgba(178, 34, 52, 0.3);
+    transform: translateY(-1px);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Range Input Styling */
 .range-input {
-    width: 100%;
+    flex: 1;
     height: 6px;
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.2);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
-    margin: 10px 0;
+    margin: 0;
 }
 
 .range-input::-webkit-slider-thumb {
@@ -519,17 +723,19 @@ body::before {
 
 #durationValue {
     color: white;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     margin-left: 10px;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    min-width: 35px;
+    text-align: right;
 }
 
 /* Video Effects Styling */
 .effects-container {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 15px 0;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     position: relative;
@@ -548,8 +754,11 @@ body::before {
 }
 
 .effect-control {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .effect-control:last-child {
@@ -557,31 +766,31 @@ body::before {
 }
 
 .effect-control label {
-    display: block;
     color: white;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-bottom: 8px;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    min-width: 80px;
+    flex-shrink: 0;
 }
 
 .effect-value {
     color: white;
-    font-size: 0.8rem;
-    margin-left: 10px;
+    font-size: 0.75rem;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     font-weight: 600;
-    min-width: 40px;
-    display: inline-block;
+    min-width: 35px;
+    text-align: right;
+    flex-shrink: 0;
 }
 
 .btn-small {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    margin-top: 8px;
 }
 
 /* Effect-specific range styling */
@@ -613,6 +822,60 @@ body::before {
 #sepiaEffect::-webkit-slider-thumb {
     background: linear-gradient(45deg, #D2691E, #CD853F);
     box-shadow: 0 2px 8px rgba(210, 105, 30, 0.3);
+}
+
+/* Audio Effects Styling */
+.audio-effects-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.audio-effects-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #FF6B35, #F7931E, #FFD23F);
+    border-radius: 15px 15px 0 0;
+}
+
+/* Audio effect-specific range styling */
+#volumeEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #FF6B35, #F7931E);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+#bassEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #8B4513, #A0522D);
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+}
+
+#trebleEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #4169E1, #6495ED);
+    box-shadow: 0 2px 8px rgba(65, 105, 225, 0.3);
+}
+
+#noiseGateEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #32CD32, #90EE90);
+    box-shadow: 0 2px 8px rgba(50, 205, 50, 0.3);
+}
+
+#compressionEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #FF1493, #FF69B4);
+    box-shadow: 0 2px 8px rgba(255, 20, 147, 0.3);
+}
+
+#echoEffect::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #9370DB, #BA55D3);
+    box-shadow: 0 2px 8px rgba(147, 112, 219, 0.3);
 }
 
 .select-input:focus {
@@ -912,6 +1175,22 @@ body::before {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .recorder-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .controls-panel {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .main-content {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;

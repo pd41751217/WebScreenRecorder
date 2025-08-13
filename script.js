@@ -19,6 +19,14 @@ class BrowserRecorder {
             hue: 0,
             sepia: 0
         };
+        this.audioEffects = {
+            volume: 100,
+            bass: 0,
+            treble: 0,
+            noiseGate: 0,
+            compression: 0,
+            echo: 0
+        };
         
         this.initializeElements();
         this.bindEvents();
@@ -93,6 +101,8 @@ class BrowserRecorder {
         // Device selection changes
         this.audioSourceSelect.addEventListener('change', () => this.updateStream());
         this.videoSourceSelect.addEventListener('change', () => this.updateStream());
+        this.recordingTypeSelect = document.getElementById('recordingTypeSelect');
+        this.recordingTypeSelect.addEventListener('change', () => this.updateStream());
 
         // Transition controls
         this.transitionSelect = document.getElementById('transitionSelect');
@@ -118,6 +128,31 @@ class BrowserRecorder {
         this.hueEffect.addEventListener('input', () => this.updateVideoEffects());
         this.sepiaEffect.addEventListener('input', () => this.updateVideoEffects());
         this.resetEffectsBtn.addEventListener('click', () => this.resetVideoEffects());
+
+        // Audio effects controls
+        this.volumeEffect = document.getElementById('volumeEffect');
+        this.bassEffect = document.getElementById('bassEffect');
+        this.trebleEffect = document.getElementById('trebleEffect');
+        this.noiseGateEffect = document.getElementById('noiseGateEffect');
+        this.compressionEffect = document.getElementById('compressionEffect');
+        this.echoEffect = document.getElementById('echoEffect');
+        this.resetAudioEffectsBtn = document.getElementById('resetAudioEffectsBtn');
+
+        this.volumeEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.bassEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.trebleEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.noiseGateEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.compressionEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.echoEffect.addEventListener('input', () => this.updateAudioEffects());
+        this.resetAudioEffectsBtn.addEventListener('click', () => this.resetAudioEffects());
+
+        // Tab functionality
+        this.tabButtons = document.querySelectorAll('.tab-btn');
+        this.tabContents = document.querySelectorAll('.tab-content');
+        
+        this.tabButtons.forEach(button => {
+            button.addEventListener('click', () => this.switchTab(button.dataset.tab));
+        });
     }
 
     async populateDeviceOptions() {
@@ -151,7 +186,7 @@ class BrowserRecorder {
     }
 
     getRecordingType() {
-        return document.querySelector('input[name="recordingType"]:checked').value;
+        return this.recordingTypeSelect ? this.recordingTypeSelect.value : 'video';
     }
 
     getQualityConstraints() {
@@ -213,6 +248,14 @@ class BrowserRecorder {
 
             this.videoPreview.srcObject = this.mediaStream;
             this.placeholder.classList.add('hidden');
+
+            // Initialize audio context for recording
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Apply audio effects to the stream
+            this.applyAudioEffects();
 
             // Set up MediaRecorder
             const mimeType = this.getSupportedMimeType();
@@ -536,6 +579,16 @@ class BrowserRecorder {
             this.sepiaEffect.value = this.videoEffects.sepia;
             this.updateVideoEffects();
         }
+        if (settings.audioEffects) {
+            this.audioEffects = settings.audioEffects;
+            this.volumeEffect.value = this.audioEffects.volume;
+            this.bassEffect.value = this.audioEffects.bass;
+            this.trebleEffect.value = this.audioEffects.treble;
+            this.noiseGateEffect.value = this.audioEffects.noiseGate;
+            this.compressionEffect.value = this.audioEffects.compression;
+            this.echoEffect.value = this.audioEffects.echo;
+            this.updateAudioEffects();
+        }
 
         // Load recordings
         const savedRecordings = JSON.parse(localStorage.getItem('recordings') || '[]');
@@ -550,7 +603,8 @@ class BrowserRecorder {
             showTimer: document.getElementById('showTimer').checked,
             transition: this.currentTransition,
             transitionDuration: this.transitionDurationMs,
-            videoEffects: this.videoEffects
+            videoEffects: this.videoEffects,
+            audioEffects: this.audioEffects
         };
         localStorage.setItem('recorderSettings', JSON.stringify(settings));
     }
@@ -717,6 +771,132 @@ class BrowserRecorder {
         // Remove all filters from video
         this.videoPreview.style.filter = 'none';
     }
+
+    updateAudioEffects() {
+        // Update effect values
+        this.audioEffects.volume = parseInt(this.volumeEffect.value);
+        this.audioEffects.bass = parseInt(this.bassEffect.value);
+        this.audioEffects.treble = parseInt(this.trebleEffect.value);
+        this.audioEffects.noiseGate = parseInt(this.noiseGateEffect.value);
+        this.audioEffects.compression = parseInt(this.compressionEffect.value);
+        this.audioEffects.echo = parseInt(this.echoEffect.value);
+
+        // Update display values
+        this.volumeEffect.nextElementSibling.textContent = `${this.audioEffects.volume}%`;
+        this.bassEffect.nextElementSibling.textContent = `${this.audioEffects.bass}dB`;
+        this.trebleEffect.nextElementSibling.textContent = `${this.audioEffects.treble}dB`;
+        this.noiseGateEffect.nextElementSibling.textContent = `${this.audioEffects.noiseGate}%`;
+        this.compressionEffect.nextElementSibling.textContent = `${this.audioEffects.compression}%`;
+        this.echoEffect.nextElementSibling.textContent = `${this.audioEffects.echo}%`;
+
+        // Apply effects to audio context if available
+        this.applyAudioEffects();
+        
+        // Save settings
+        this.saveSettings();
+    }
+
+    applyAudioEffects() {
+        // Create audio context for real-time processing
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        // Apply volume to video element
+        if (this.videoPreview) {
+            this.videoPreview.volume = this.audioEffects.volume / 100;
+        }
+
+        // For recording, we'll apply effects through Web Audio API
+        if (this.mediaStream && this.audioContext.state === 'running') {
+            this.setupAudioProcessing();
+        }
+    }
+
+    setupAudioProcessing() {
+        try {
+            // Create audio source from media stream
+            const audioSource = this.audioContext.createMediaStreamSource(this.mediaStream);
+            
+            // Create gain node for volume control
+            const volumeGain = this.audioContext.createGain();
+            volumeGain.gain.value = this.audioEffects.volume / 100;
+            
+            // Create biquad filter for bass boost
+            const bassFilter = this.audioContext.createBiquadFilter();
+            bassFilter.type = 'lowshelf';
+            bassFilter.frequency.value = 200;
+            bassFilter.gain.value = this.audioEffects.bass;
+            
+            // Create biquad filter for treble boost
+            const trebleFilter = this.audioContext.createBiquadFilter();
+            trebleFilter.type = 'highshelf';
+            trebleFilter.frequency.value = 3000;
+            trebleFilter.gain.value = this.audioEffects.treble;
+            
+            // Create compressor for compression effect
+            const compressor = this.audioContext.createDynamicsCompressor();
+            compressor.threshold.value = -50 + (this.audioEffects.compression * 0.5);
+            compressor.knee.value = 40;
+            compressor.ratio.value = 12;
+            compressor.attack.value = 0;
+            compressor.release.value = 0.25;
+            
+            // Connect the audio processing chain
+            audioSource
+                .connect(volumeGain)
+                .connect(bassFilter)
+                .connect(trebleFilter)
+                .connect(compressor)
+                .connect(this.audioContext.destination);
+                
+        } catch (error) {
+            console.log('Audio processing setup failed:', error);
+        }
+    }
+
+    resetAudioEffects() {
+        // Reset all audio effect values to defaults
+        this.volumeEffect.value = 100;
+        this.bassEffect.value = 0;
+        this.trebleEffect.value = 0;
+        this.noiseGateEffect.value = 0;
+        this.compressionEffect.value = 0;
+        this.echoEffect.value = 0;
+
+        // Reset audio effects object
+        this.audioEffects = {
+            volume: 100,
+            bass: 0,
+            treble: 0,
+            noiseGate: 0,
+            compression: 0,
+            echo: 0
+        };
+
+        // Update display values
+        this.updateAudioEffects();
+        
+        // Reset video volume
+        if (this.videoPreview) {
+            this.videoPreview.volume = 1.0;
+        }
+    }
+
+    switchTab(tabName) {
+        // Remove active class from all tabs and contents
+        this.tabButtons.forEach(btn => btn.classList.remove('active'));
+        this.tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+        const activeContent = document.getElementById(`${tabName}-tab`);
+        
+        if (activeTab && activeContent) {
+            activeTab.classList.add('active');
+            activeContent.classList.add('active');
+        }
+    }
 }
 
 // Initialize the recorder when the page loads
@@ -738,15 +918,19 @@ style.textContent = `
         justify-content: space-between;
         align-items: center;
         padding: 15px;
-        border: 1px solid #e1e5e9;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        background: white;
-        transition: all 0.3s;
+        border: 1px solid rgba(178, 34, 52, 0.2);
+        border-radius: 15px;
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
     
     .recording-item:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 25px rgba(178, 34, 52, 0.2);
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.15);
     }
     
     .recording-info {
@@ -759,25 +943,29 @@ style.textContent = `
     .recording-preview {
         width: 50px;
         height: 50px;
-        background: #f8f9fa;
-        border-radius: 8px;
+        background: rgba(178, 34, 52, 0.1);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #667eea;
+        color: #B22234;
         font-size: 1.5rem;
+        border: 2px solid rgba(178, 34, 52, 0.2);
+        backdrop-filter: blur(5px);
     }
     
     .recording-details h4 {
         margin: 0 0 5px 0;
         font-size: 1rem;
-        color: #333;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
     
     .recording-details p {
         margin: 0;
         font-size: 0.9rem;
-        color: #666;
+        color: rgba(255, 255, 255, 0.8);
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
     }
     
     .recording-actions {
@@ -788,6 +976,34 @@ style.textContent = `
     .btn-small {
         padding: 8px 12px;
         font-size: 0.9rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-small:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-small.btn-primary {
+        background: linear-gradient(45deg, #B22234, #3C3B6E);
+        color: white;
+        border: none;
+    }
+    
+    .btn-small.btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-small.btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.6);
     }
 `;
 document.head.appendChild(style);

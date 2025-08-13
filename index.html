@@ -32,159 +32,225 @@
 
         <main class="main-content">
             <div class="recorder-container">
-                <div class="video-preview">
-                    <video id="videoPreview" autoplay muted></video>
-                    <div id="recordingOverlay" class="recording-overlay hidden">
-                        <div class="recording-indicator">
-                            <div class="pulse"></div>
-                            <span>REC</span>
+                <div class="left-section">
+                    <div class="video-preview">
+                        <video id="videoPreview" autoplay muted></video>
+                        <div id="recordingOverlay" class="recording-overlay hidden">
+                            <div class="recording-indicator">
+                                <div class="pulse"></div>
+                                <span>REC</span>
+                            </div>
+                            <div class="recording-time" id="recordingTime">00:00</div>
                         </div>
-                        <div class="recording-time" id="recordingTime">00:00</div>
+                        <div id="placeholder" class="video-placeholder">
+                            <div class="placeholder-content">
+                                <div class="icon-container">
+                                    <svg class="camera-icon-large" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div class="icon-glow"></div>
+                                </div>
+                                <p>Click "Start Recording" to capture your dream</p>
+                                <div class="particles">
+                                    <div class="particle"></div>
+                                    <div class="particle"></div>
+                                    <div class="particle"></div>
+                                    <div class="particle"></div>
+                                    <div class="particle"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="placeholder" class="video-placeholder">
-                        <div class="placeholder-content">
-                            <div class="icon-container">
-                                <svg class="camera-icon-large" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <div class="icon-glow"></div>
-                            </div>
-                            <p>Click "Start Recording" to capture your dream</p>
-                            <div class="particles">
-                                <div class="particle"></div>
-                                <div class="particle"></div>
-                                <div class="particle"></div>
-                                <div class="particle"></div>
-                                <div class="particle"></div>
-                            </div>
+
+                    <div class="video-controls">
+                                                 <div class="main-controls">
+                             <button id="startBtn" class="btn btn-primary btn-large">
+                                 <i class="fas fa-play"></i>
+                                 Start Recording
+                             </button>
+                         </div>
+                        <div class="secondary-controls">
+                            <button id="stopBtn" class="btn btn-danger btn-large hidden">
+                                <i class="fas fa-stop"></i>
+                                Stop Recording
+                            </button>
+                            <button id="pauseBtn" class="btn btn-warning btn-large hidden">
+                                <i class="fas fa-pause"></i>
+                                Pause
+                            </button>
+                            <button id="resumeBtn" class="btn btn-success btn-large hidden">
+                                <i class="fas fa-play"></i>
+                                Resume
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="controls-panel">
-                    <div class="recording-controls">
-                        <button id="startBtn" class="btn btn-primary btn-large">
-                            <i class="fas fa-play"></i>
-                            Start Recording
-                        </button>
-                        <button id="stopBtn" class="btn btn-danger btn-large hidden">
-                            <i class="fas fa-stop"></i>
-                            Stop Recording
-                        </button>
-                        <button id="pauseBtn" class="btn btn-warning btn-large hidden">
-                            <i class="fas fa-pause"></i>
-                            Pause
-                        </button>
-                        <button id="resumeBtn" class="btn btn-success btn-large hidden">
-                            <i class="fas fa-play"></i>
-                            Resume
-                        </button>
+                <div class="right-section">
+                    <div class="controls-panel">
+
+                    <div class="recording-options">
+                        <!-- Tab Navigation -->
+                        <div class="tabs-container">
+                            <div class="tab-nav">
+                                <button class="tab-btn active" data-tab="source">
+                                    <i class="fas fa-cog"></i>
+                                    Source
+                                </button>
+                                <button class="tab-btn" data-tab="video-effects">
+                                    <i class="fas fa-palette"></i>
+                                    Video Effects
+                                </button>
+                                <button class="tab-btn" data-tab="audio-effects">
+                                    <i class="fas fa-volume-up"></i>
+                                    Audio Effects
+                                </button>
+                            </div>
+
+                            <!-- Source Tab -->
+                            <div class="tab-content active" id="source-tab">
+                                <div class="option-group inline">
+                                    <label>Recording Type:</label>
+                                    <select id="recordingTypeSelect" class="select-input">
+                                        <option value="video">Video + Audio</option>
+                                        <option value="audio">Audio Only</option>
+                                        <option value="screen">Screen Capture</option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group inline">
+                                    <label>Quality:</label>
+                                    <select id="qualitySelect" class="select-input">
+                                        <option value="high">High Quality (1080p)</option>
+                                        <option value="medium" selected>Medium Quality (720p)</option>
+                                        <option value="low">Low Quality (480p)</option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group inline">
+                                    <label>Audio Source:</label>
+                                    <select id="audioSourceSelect" class="select-input">
+                                        <option value="default">Default Microphone</option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group inline">
+                                    <label>Video Source:</label>
+                                    <select id="videoSourceSelect" class="select-input">
+                                        <option value="default">Default Camera</option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group inline">
+                                    <label>Scene Transition:</label>
+                                    <select id="transitionSelect" class="select-input">
+                                        <option value="none">No Transition</option>
+                                        <option value="fade">Fade</option>
+                                        <option value="slide">Slide</option>
+                                        <option value="zoom">Zoom</option>
+                                        <option value="wipe">Wipe</option>
+                                        <option value="dissolve">Dissolve</option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group inline">
+                                    <label>Transition Duration:</label>
+                                    <div class="range-container">
+                                        <input type="range" id="transitionDuration" min="0" max="2000" value="500" step="100" class="range-input">
+                                        <span id="durationValue">500ms</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Effects Tab -->
+                            <div class="tab-content" id="video-effects-tab">
+                                <div class="effects-container">
+                                    <div class="effect-control">
+                                        <label>Brightness</label>
+                                        <input type="range" id="brightnessEffect" min="0" max="200" value="100" step="5" class="range-input">
+                                        <span class="effect-value">100%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Contrast</label>
+                                        <input type="range" id="contrastEffect" min="0" max="200" value="100" step="5" class="range-input">
+                                        <span class="effect-value">100%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Saturation</label>
+                                        <input type="range" id="saturationEffect" min="0" max="200" value="100" step="5" class="range-input">
+                                        <span class="effect-value">100%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Blur</label>
+                                        <input type="range" id="blurEffect" min="0" max="10" value="0" step="0.5" class="range-input">
+                                        <span class="effect-value">0px</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Hue Rotate</label>
+                                        <input type="range" id="hueEffect" min="0" max="360" value="0" step="5" class="range-input">
+                                        <span class="effect-value">0°</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Sepia</label>
+                                        <input type="range" id="sepiaEffect" min="0" max="100" value="0" step="5" class="range-input">
+                                        <span class="effect-value">0%</span>
+                                    </div>
+                                </div>
+                                <button id="resetEffectsBtn" class="btn btn-secondary btn-small">
+                                    <i class="fas fa-undo"></i>
+                                    Reset Effects
+                                </button>
+                            </div>
+
+                            <!-- Audio Effects Tab -->
+                            <div class="tab-content" id="audio-effects-tab">
+                                <div class="audio-effects-container">
+                                    <div class="effect-control">
+                                        <label>Volume</label>
+                                        <input type="range" id="volumeEffect" min="0" max="200" value="100" step="5" class="range-input">
+                                        <span class="effect-value">100%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Bass Boost</label>
+                                        <input type="range" id="bassEffect" min="0" max="20" value="0" step="1" class="range-input">
+                                        <span class="effect-value">0dB</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Treble Boost</label>
+                                        <input type="range" id="trebleEffect" min="0" max="20" value="0" step="1" class="range-input">
+                                        <span class="effect-value">0dB</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Noise Gate</label>
+                                        <input type="range" id="noiseGateEffect" min="0" max="100" value="0" step="5" class="range-input">
+                                        <span class="effect-value">0%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Compression</label>
+                                        <input type="range" id="compressionEffect" min="0" max="100" value="0" step="5" class="range-input">
+                                        <span class="effect-value">0%</span>
+                                    </div>
+                                    <div class="effect-control">
+                                        <label>Echo</label>
+                                        <input type="range" id="echoEffect" min="0" max="100" value="0" step="5" class="range-input">
+                                        <span class="effect-value">0%</span>
+                                    </div>
+                                </div>
+                                <button id="resetAudioEffectsBtn" class="btn btn-secondary btn-small">
+                                    <i class="fas fa-volume-mute"></i>
+                                    Reset Audio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="transition-control">
                         <button id="transitionBtn" class="btn btn-secondary btn-large">
                             <i class="fas fa-magic"></i>
                             Test Transition
                         </button>
-                    </div>
-
-                    <div class="recording-options">
-                        <div class="option-group">
-                            <label>Recording Type:</label>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="recordingType" value="video" checked>
-                                    <span>Video + Audio</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="recordingType" value="audio">
-                                    <span>Audio Only</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="recordingType" value="screen">
-                                    <span>Screen Capture</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Quality:</label>
-                            <select id="qualitySelect" class="select-input">
-                                <option value="high">High Quality (1080p)</option>
-                                <option value="medium" selected>Medium Quality (720p)</option>
-                                <option value="low">Low Quality (480p)</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Audio Source:</label>
-                            <select id="audioSourceSelect" class="select-input">
-                                <option value="default">Default Microphone</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Video Source:</label>
-                            <select id="videoSourceSelect" class="select-input">
-                                <option value="default">Default Camera</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Scene Transition:</label>
-                            <select id="transitionSelect" class="select-input">
-                                <option value="none">No Transition</option>
-                                <option value="fade">Fade</option>
-                                <option value="slide">Slide</option>
-                                <option value="zoom">Zoom</option>
-                                <option value="wipe">Wipe</option>
-                                <option value="dissolve">Dissolve</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Transition Duration:</label>
-                            <input type="range" id="transitionDuration" min="0" max="2000" value="500" step="100" class="range-input">
-                            <span id="durationValue">500ms</span>
-                        </div>
-
-                        <div class="option-group">
-                            <label>Video Effects:</label>
-                            <div class="effects-container">
-                                <div class="effect-control">
-                                    <label>Brightness</label>
-                                    <input type="range" id="brightnessEffect" min="0" max="200" value="100" step="5" class="range-input">
-                                    <span class="effect-value">100%</span>
-                                </div>
-                                <div class="effect-control">
-                                    <label>Contrast</label>
-                                    <input type="range" id="contrastEffect" min="0" max="200" value="100" step="5" class="range-input">
-                                    <span class="effect-value">100%</span>
-                                </div>
-                                <div class="effect-control">
-                                    <label>Saturation</label>
-                                    <input type="range" id="saturationEffect" min="0" max="200" value="100" step="5" class="range-input">
-                                    <span class="effect-value">100%</span>
-                                </div>
-                                <div class="effect-control">
-                                    <label>Blur</label>
-                                    <input type="range" id="blurEffect" min="0" max="10" value="0" step="0.5" class="range-input">
-                                    <span class="effect-value">0px</span>
-                                </div>
-                                <div class="effect-control">
-                                    <label>Hue Rotate</label>
-                                    <input type="range" id="hueEffect" min="0" max="360" value="0" step="5" class="range-input">
-                                    <span class="effect-value">0°</span>
-                                </div>
-                                <div class="effect-control">
-                                    <label>Sepia</label>
-                                    <input type="range" id="sepiaEffect" min="0" max="100" value="0" step="5" class="range-input">
-                                    <span class="effect-value">0%</span>
-                                </div>
-                            </div>
-                            <button id="resetEffectsBtn" class="btn btn-secondary btn-small">
-                                <i class="fas fa-undo"></i>
-                                Reset Effects
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
